@@ -1,4 +1,4 @@
-package com.jonesmbindyo.data.config
+package com.jonesmbindyo.core.config
 
 /**
  * Resolves relative wheel asset paths into absolute URLs by joining [NetworkAssets.host]

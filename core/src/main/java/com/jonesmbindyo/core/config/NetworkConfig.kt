@@ -1,4 +1,4 @@
-package com.jonesmbindyo.data.config
+package com.jonesmbindyo.core.config
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

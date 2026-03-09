@@ -1,4 +1,4 @@
-package com.jonesmbindyo.data.config
+package com.jonesmbindyo.core.config
 
 /**
  * Absolute URLs for all spin wheel assets, produced by [RemoteConfig.resolveAssets].
