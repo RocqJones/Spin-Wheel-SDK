@@ -24,3 +24,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "spin-wheel-sdk"
 include(":app")
+include(":data")
+include(":core")
+include(":domain")
+include(":ui")
+include(":sdk")
+include(":di")
