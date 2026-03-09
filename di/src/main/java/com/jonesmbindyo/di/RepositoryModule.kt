@@ -1,4 +1,4 @@
-package com.jonesmbindyo.spinwheel.di
+package com.jonesmbindyo.di
 
 import com.jonesmbindyo.data.assets.AssetRepository
 import com.jonesmbindyo.data.config.ConfigRepository

@@ -1,4 +1,4 @@
-package com.jonesmbindyo.spinwheel.ui.state
+package com.jonesmbindyo.spinwheel.vm
 
 import java.io.File
 
@@ -14,3 +14,4 @@ data class SpinWheelUiState(
     val errorMessage: String? = null,
     val lastResultIndex: Int = -1,
 )
+

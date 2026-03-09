@@ -1,4 +1,4 @@
-package com.jonesmbindyo.spinwheel.di
+package com.jonesmbindyo.di
 
 import com.jonesmbindyo.core.network.AssetHttpDataSource
 import com.jonesmbindyo.core.network.ConfigHttpDataSource

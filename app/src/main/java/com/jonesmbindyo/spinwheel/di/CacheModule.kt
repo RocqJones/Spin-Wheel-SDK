@@ -9,8 +9,7 @@ import org.koin.dsl.module
 
 val cacheModule = module {
     single { SpinWheelCache(filesDir = androidContext().filesDir) }
-    single<JsonCache> { get<SpinWheelCache>().json }
+    single<JsonCache>  { get<SpinWheelCache>().json }
     single<AssetCache> { get<SpinWheelCache>().asset }
     single { SpinWheelPrefs(filesDir = androidContext().filesDir) }
 }
-
