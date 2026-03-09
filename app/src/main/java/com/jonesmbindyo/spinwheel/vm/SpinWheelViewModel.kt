@@ -7,6 +7,10 @@ import com.jonesmbindyo.data.assets.AssetRepository
 import com.jonesmbindyo.data.config.ConfigRepository
 import com.jonesmbindyo.data.prefs.SpinWheelPrefs
 import com.jonesmbindyo.domain.wheel.SpinEngine
+import com.jonesmbindyo.spinwheel.constants.ASSET_URL_BACKGROUND
+import com.jonesmbindyo.spinwheel.constants.ASSET_URL_FRAME
+import com.jonesmbindyo.spinwheel.constants.ASSET_URL_SPIN_BUTTON
+import com.jonesmbindyo.spinwheel.constants.ASSET_URL_WHEEL
 import com.jonesmbindyo.domain.wheel.WheelRotationConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +30,10 @@ class SpinWheelViewModel(
     private val _uiState = MutableStateFlow(SpinWheelUiState())
     val uiState: StateFlow<SpinWheelUiState> = _uiState.asStateFlow()
 
+    private var loadedConfigUrl: String = ""
+
     fun load(configUrl: String) {
+        loadedConfigUrl = configUrl
         viewModelScope.launch {
             val config = runCatching { configRepository.getConfig(configUrl) }
                 .onFailure { _uiState.update { it.copy(errorMessage = "Failed to load config: ${it.errorMessage}") } }
@@ -38,16 +45,23 @@ class SpinWheelViewModel(
             _uiState.update { it.copy(isLoadingConfig = false) }
 
             val assets = config.wheelAssets
-            runCatching { assetRepository.prefetchAssets(assets) }
+            // Use hardcoded Drive URLs — config host is a placeholder
+            val resolvedAssets = assets.copy(
+                background = ASSET_URL_BACKGROUND,
+                frame      = ASSET_URL_FRAME,
+                spinButton = ASSET_URL_SPIN_BUTTON,
+                wheel      = ASSET_URL_WHEEL,
+            )
+            runCatching { assetRepository.prefetchAssets(resolvedAssets) }
                 .onFailure { e -> _uiState.update { it.copy(errorMessage = "Failed to load assets: ${e.message}") } }
 
             _uiState.update { state ->
                 state.copy(
                     isLoadingAssets = false,
-                    backgroundFile  = runCatching { assetRepository.getAssetFile(assets.background) }.getOrNull(),
-                    wheelFile       = runCatching { assetRepository.getAssetFile(assets.wheel) }.getOrNull(),
-                    frameFile       = runCatching { assetRepository.getAssetFile(assets.frame) }.getOrNull(),
-                    spinButtonFile  = runCatching { assetRepository.getAssetFile(assets.spinButton) }.getOrNull(),
+                    backgroundFile  = runCatching { assetRepository.getAssetFile(resolvedAssets.background) }.getOrNull(),
+                    wheelFile       = runCatching { assetRepository.getAssetFile(resolvedAssets.wheel) }.getOrNull(),
+                    frameFile       = runCatching { assetRepository.getAssetFile(resolvedAssets.frame) }.getOrNull(),
+                    spinButtonFile  = runCatching { assetRepository.getAssetFile(resolvedAssets.spinButton) }.getOrNull(),
                     lastResultIndex = prefs.lastSpinResultIndex,
                 )
             }
@@ -58,7 +72,7 @@ class SpinWheelViewModel(
         if (_uiState.value.isSpinning) return
 
         viewModelScope.launch {
-            val config = runCatching { configRepository.getConfig("") }.getOrNull()
+            val config = runCatching { configRepository.getConfig(loadedConfigUrl) }.getOrNull()
             val rotationConfig = config?.rotationConfig?.toDomainConfig() ?: WheelRotationConfig()
 
             val result = runCatching { spinEngine.spin(DEFAULT_SEGMENTS, rotationConfig) }
@@ -79,8 +93,12 @@ class SpinWheelViewModel(
             }
 
             prefs.lastSpinResultIndex = result.resultIndex
-            _uiState.update { it.copy(isSpinning = false, lastResultIndex = result.resultIndex) }
+            _uiState.update { it.copy(isSpinning = false, lastResultIndex = result.resultIndex, pendingResult = true) }
         }
+    }
+
+    fun clearPendingResult() {
+        _uiState.update { it.copy(pendingResult = false) }
     }
 
     private fun easeInOutSine(t: Float): Float =

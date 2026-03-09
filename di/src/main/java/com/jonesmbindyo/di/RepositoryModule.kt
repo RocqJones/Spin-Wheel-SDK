@@ -8,4 +8,3 @@ val repositoryModule = module {
     single { ConfigRepository(httpSource = get(), jsonCache = get(), prefs = get()) }
     single { AssetRepository(httpSource = get(), assetCache = get()) }
 }
-

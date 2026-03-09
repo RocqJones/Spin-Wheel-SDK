@@ -36,10 +36,11 @@ fun SpinWheel(
         viewModel.load(configUrl)
     }
 
-    // Notify caller when a spin animation completes
-    LaunchedEffect(state.isSpinning, state.lastResultIndex) {
-        if (!state.isSpinning && state.lastResultIndex >= 0) {
+    // Notify caller once per completed spin — pendingResult guards against firing on prefs restore
+    LaunchedEffect(state.pendingResult) {
+        if (state.pendingResult) {
             onSpinEnd(state.lastResultIndex)
+            viewModel.clearPendingResult()
         }
     }
 
