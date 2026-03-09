@@ -10,6 +10,7 @@ Fetches remote configuration and image assets, renders a layered animated spin w
 ```
 SpinWheel/
 ├── app/                        # Demo host application
+├── spinwheel-sdk/              # Reusable Android library (published AAR)
 ├── core/                       # Models, DTOs, network layer, constants
 ├── data/                       # Repositories, cache, preferences
 ├── domain/                     # Spin logic
@@ -23,6 +24,22 @@ SpinWheel/
 ---
 
 ## Modules
+
+### `:spinwheel-sdk` — Publishable SDK Library
+Android library module. Public entry point for consumers. Published as a release AAR.
+
+| File | Purpose |
+|---|---|
+| `SpinWheel` | Public composable entry point |
+| `SpinWheelView` | Internal layered composable — background, wheel, frame, button |
+| `SpinWheelViewModel` | MVVM ViewModel — drives loading, spinning, and state |
+| `SpinWheelUiState` | Immutable UI state data class |
+| `SpinWheelSdk` | Public SDK initializer — `SpinWheelSdk.initialize(context)` |
+| `ImageLoader` | `rememberPainterFromFile(File?)` Compose utility |
+
+> Published artifact: `com.spinwheel:spinwheel-sdk:1.0.1`
+
+---
 
 ### `:app` — Demo Application
 Acts as the host app demonstrating SDK integration.
@@ -135,6 +152,58 @@ Hosted at `CONFIG_URL` (Google Drive). Fetched on first launch, cached with TTL.
 ```
 
 > Asset URLs are resolved from `AppConstants` — the config host is a placeholder.
+
+---
+
+## Publishing
+
+The `:spinwheel-sdk` module is configured with the `maven-publish` plugin and publishes a release AAR.
+
+### Build the SDK
+
+```bash
+./gradlew :spinwheel-sdk:assembleRelease
+```
+
+Produces the AAR at:
+```
+spinwheel-sdk/build/outputs/aar/spinwheel-sdk-release.aar
+```
+
+### Publish to Maven Local
+
+```bash
+./gradlew :spinwheel-sdk:publishToMavenLocal
+```
+
+Publishes the artifact to:
+```
+~/.m2/repository/com/spinwheel/spinwheel-sdk/1.0.1/
+├── spinwheel-sdk-1.0.1.aar
+├── spinwheel-sdk-1.0.1.pom
+├── spinwheel-sdk-1.0.1.module
+└── spinwheel-sdk-1.0.1-sources.jar
+```
+
+### Consume from another Android project
+
+Add `mavenLocal()` to the consumer project's repository list, then declare the dependency:
+
+```kotlin
+// settings.gradle.kts
+dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+    }
+}
+
+// build.gradle.kts
+dependencies {
+    implementation("com.spinwheel:spinwheel-sdk:1.0.1")
+}
+```
 
 ---
 

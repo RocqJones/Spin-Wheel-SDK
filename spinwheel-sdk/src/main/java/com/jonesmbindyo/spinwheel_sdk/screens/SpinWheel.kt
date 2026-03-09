@@ -1,4 +1,4 @@
-package com.jonesmbindyo.spinwheel.ui.screens
+package com.jonesmbindyo.spinwheel_sdk.screens
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,13 +10,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.jonesmbindyo.spinwheel.vm.SpinWheelViewModel
-import com.jonesmbindyo.spinwheel.ui.utils.rememberPainterFromFile
+import com.jonesmbindyo.spinwheel_sdk.utils.rememberPainterFromFile
+import com.jonesmbindyo.spinwheel_sdk.vm.SpinWheelViewModel
 import org.koin.androidx.compose.koinViewModel
 
 /**
- * Public SDK entry point for the Spin Wheel.
- * Handles config loading, asset fetching, and spin animation internally.
+ * Public SDK composable. Initialize [com.jonesmbindyo.spinwheel_sdk.di.SpinWheelSdk] before using this.
  *
  * @param configUrl Remote URL to fetch the widget configuration from.
  * @param modifier  Modifier applied to the wheel container.
@@ -31,12 +30,8 @@ fun SpinWheel(
     val viewModel: SpinWheelViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsState()
 
-    // Load config and assets on first composition
-    LaunchedEffect(configUrl) {
-        viewModel.load(configUrl)
-    }
+    LaunchedEffect(configUrl) { viewModel.load(configUrl) }
 
-    // Notify caller once per completed spin — pendingResult guards against firing on prefs restore
     LaunchedEffect(state.pendingResult) {
         if (state.pendingResult) {
             onSpinEnd(state.lastResultIndex)

@@ -1,4 +1,4 @@
-package com.jonesmbindyo.spinwheel.vm
+package com.jonesmbindyo.spinwheel_sdk.vm
 
 import java.io.File
 
@@ -13,7 +13,5 @@ data class SpinWheelUiState(
     val spinButtonFile: File? = null,
     val errorMessage: String? = null,
     val lastResultIndex: Int = -1,
-    // true only immediately after a spin completes — prevents onSpinEnd firing on prefs restore
     val pendingResult: Boolean = false,
 )
-

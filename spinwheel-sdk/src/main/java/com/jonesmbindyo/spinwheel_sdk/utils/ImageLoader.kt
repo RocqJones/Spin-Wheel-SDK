@@ -1,4 +1,4 @@
-package com.jonesmbindyo.spinwheel.ui.utils
+package com.jonesmbindyo.spinwheel_sdk.utils
 
 import android.graphics.BitmapFactory
 import androidx.compose.runtime.Composable
@@ -8,10 +8,6 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import java.io.File
 
-/**
- * Loads a cached image [file] into a [Painter] suitable for use in Compose.
- * Returns `null` if [file] is null or cannot be decoded.
- */
 @Composable
 fun rememberPainterFromFile(file: File?): Painter? {
     return remember(file) {
