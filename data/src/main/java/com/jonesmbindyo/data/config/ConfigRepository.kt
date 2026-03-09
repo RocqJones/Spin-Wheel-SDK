@@ -4,6 +4,7 @@ import com.jonesmbindyo.core.config.RemoteConfig
 import com.jonesmbindyo.core.dto.WidgetResponse
 import com.jonesmbindyo.core.dto.toRemoteConfig
 import com.jonesmbindyo.core.network.ConfigHttpDataSource
+import com.jonesmbindyo.data.assets.normalizeDriveUrl
 import com.jonesmbindyo.data.cache.JsonCache
 import com.jonesmbindyo.data.prefs.SpinWheelPrefs
 import kotlinx.serialization.json.Json
@@ -34,7 +35,7 @@ class ConfigRepository(
         }
 
         return try {
-            val responseJson = httpSource.fetchConfigJson(configUrl)
+            val responseJson = httpSource.fetchConfigJson(normalizeDriveUrl(configUrl))
             jsonCache.write(responseJson)
             prefs.lastConfigFetchTimeMs = System.currentTimeMillis()
             responseJson.deserialize()
