@@ -1,16 +1,16 @@
 package com.jonesmbindyo.core.config
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-
 /**
- * Root remote configuration fetched from the backend.
+ * Internal domain model for the resolved remote configuration.
  *
- * @property network Network communication settings, including asset host and cache TTL.
- * @property wheel   Appearance and asset configuration for the spin wheel.
+ * @property refreshInterval How often (seconds) the SDK should re-fetch config.
+ * @property cacheExpiration How long (seconds) the cached config remains valid.
+ * @property rotationConfig  Animation parameters for the spin wheel.
+ * @property wheelAssets     Absolute asset URLs for each wheel image.
  */
-@Serializable
 data class RemoteConfig(
-    @SerialName("network") val network: NetworkConfig = NetworkConfig(),
-    @SerialName("wheel") val wheel: WheelConfig = WheelConfig(),
+    val refreshInterval: Int = 300,
+    val cacheExpiration: Int = 3600,
+    val rotationConfig: RotationConfig = RotationConfig(),
+    val wheelAssets: WheelAssets = WheelAssets(),
 )
