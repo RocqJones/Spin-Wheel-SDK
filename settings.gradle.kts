@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Spin Wheel"
+rootProject.name = "spin-wheel-sdk"
 include(":app")
