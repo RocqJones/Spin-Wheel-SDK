@@ -32,7 +32,7 @@ fun SpinWheelDemoScreen(modifier: Modifier = Modifier) {
     ) {
         SpinWheel(
             configUrl = CONFIG_URL,
-            modifier  = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             onSpinEnd = { resultIndex ->
                 Log.d(TAG, "Spin result: $resultIndex")
                 lastResultIndex = resultIndex
@@ -40,10 +40,12 @@ fun SpinWheelDemoScreen(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text     = if (lastResultIndex >= 0) "Last result: $lastResultIndex" else "Tap the wheel to spin",
-            style    = MaterialTheme.typography.titleMedium,
+            text = when {
+                lastResultIndex >= 0 -> "Last result: $lastResultIndex"
+                else -> "Tap the wheel to spin"
+            },
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 24.dp),
         )
     }
 }
-
