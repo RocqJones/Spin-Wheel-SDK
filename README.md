@@ -1,165 +1,172 @@
-# Spin Wheel SDK
+# SpinWheel SDK
 
-A modular Android Spin Wheel SDK with clean architecture.
+A modular Android Spin Wheel SDK built with Jetpack Compose, clean architecture, and Koin DI.
+Fetches remote configuration and image assets, renders a layered animated spin wheel, and persists state via SharedPreferences.
+
+---
 
 ## Project Structure
 
 ```
 SpinWheel/
-├── app/                          # Sample application module
-│   ├── build.gradle.kts
-│   └── src/
-│       ├── androidTest/
-│       │   └── java/com/jonesmbindyo/spinwheel/
-│       │       └── ExampleInstrumentedTest.kt
-│       ├── main/
-│       │   ├── AndroidManifest.xml
-│       │   ├── java/com/jonesmbindyo/spinwheel/
-│       │   │   ├── MainActivity.kt
-│       │   │   └── ui/theme/
-│       │   │       ├── Color.kt
-│       │   │       └── ...
-│       │   └── res/
-│       │       ├── drawable/
-│       │       ├── mipmap-*/
-│       │       ├── values/
-│       │       │   ├── colors.xml
-│       │       │   ├── strings.xml
-│       │       │   └── themes.xml
-│       │       └── xml/
-│       └── test/
-│           └── java/com/jonesmbindyo/spinwheel/
-│               └── ExampleUnitTest.kt
-│
-├── core/                         # Core utilities and base classes
-│   ├── build.gradle.kts
-│   └── src/main/java/com/jonesmbindyo/core/
-│       ├── MyClass.kt
-│       ├── cache/
-│       ├── model/
-│       ├── network/
-│       └── prefs/
-│
-├── data/                         # Data layer (repositories, data sources)
-│   ├── build.gradle.kts
-│   └── src/main/java/com/jonesmbindyo/data/
-│       ├── MyClass.kt
-│       ├── assets/
-│       └── config/
-│
-├── domain/                       # Domain layer (use cases, business logic)
-│   ├── build.gradle.kts
-│   └── src/main/java/com/jonesmbindyo/domain/
-│       ├── MyClass.kt
-│       └── wheel/
-│
-├── ui/                          # UI components and presentation layer
-│   ├── build.gradle.kts
-│   └── src/main/java/com/jonesmbindyo/ui/
-│       └── MyClass.kt
-│
-├── sdk/                         # Public SDK module
-│   ├── build.gradle.kts
-│   └── src/main/java/com/jonesmbindyo/sdk/
-│       ├── MyClass.kt
-│       └── spinwheel/
-│
-├── di/                          # Dependency injection module
-│   ├── build.gradle.kts
-│   └── src/main/java/com/jonesmbindyo/di/
-│       └── MyClass.kt
-│
-├── gradle/                      # Gradle configuration
-│   ├── gradle-daemon-jvm.properties
-│   ├── libs.versions.toml
-│   └── wrapper/
-│
-├── build.gradle.kts             # Root build configuration
-├── settings.gradle.kts          # Project settings
-├── gradle.properties            # Gradle properties
-├── gradlew                      # Gradle wrapper (Unix)
-├── gradlew.bat                  # Gradle wrapper (Windows)
-├── local.properties             # Local SDK configuration
-└── README.md                    # This file
+├── app/                        # Demo host application
+├── core/                       # Models, DTOs, network layer, constants
+├── data/                       # Repositories, cache, preferences
+├── domain/                     # Spin logic
+├── di/                         # Koin module definitions
+├── gradle/
+│   └── libs.versions.toml      # Version catalog
+├── build.gradle.kts
+└── settings.gradle.kts
 ```
 
-## Module Overview
+---
 
-### :app
-Sample Android application demonstrating the Spin Wheel SDK usage.
+## Modules
 
-### :core
-Core utilities, base classes, and common functionalities:
-- Cache management
-- Model definitions
-- Network utilities
-- Preferences handling
+### `:app` — Demo Application
+Acts as the host app demonstrating SDK integration.
 
-### :data
-Data layer implementation:
-- Repositories
-- Data sources
-- Asset management
-- Configuration
+| File | Purpose |
+|---|---|
+| `DemoApp` | `Application` subclass — calls `SpinWheelSdk.initialize(this)` |
+| `MainActivity` | Entry point — renders `SpinWheelDemoScreen` |
+| `SpinWheelDemoScreen` | Demo screen — renders the wheel and displays last result |
+| `SpinWheel` | Public SDK composable entry point |
+| `SpinWheelView` | Internal layered composable — background, wheel, frame, button |
+| `SpinWheelViewModel` | MVVM ViewModel — drives loading, spinning, and state |
+| `SpinWheelUiState` | Immutable UI state data class |
+| `ViewModelModule` | Koin `viewModel { }` registration |
+| `SpinWheelSdk` | Public SDK initializer — `SpinWheelSdk.initialize(context)` |
+| `SpinWheelKoin` | Internal Koin bootstrap — wires all modules |
+| `CacheModule` | Koin module for cache + prefs (Android context required) |
+| `AppConstants` | `CONFIG_URL` and four `ASSET_URL_*` Drive direct-download constants |
+| `ImageLoader` | `rememberPainterFromFile(File?)` Compose utility |
 
-### :domain
-Domain layer with business logic:
-- Use cases
-- Business rules
-- Wheel-related domain logic
+---
 
-### :ui
-UI components and presentation layer:
-- Composable functions
-- View models
-- UI utilities
+### `:core` — Shared Models & Network
+Pure JVM library. No Android dependencies.
 
-### :sdk
-Public SDK module exposing the Spin Wheel functionality to external consumers.
+| Package | Contents |
+|---|---|
+| `config` | `RemoteConfig`, `RotationConfig`, `WheelAssets` — internal domain models |
+| `dto` | `WidgetResponse`, `WidgetData`, `WheelAssetsDto` etc. — JSON DTOs with `@Serializable` |
+| `dto` | `WidgetResponseMapper` — `WidgetResponse.toRemoteConfig()` extension |
+| `network` | `HttpClientProvider` — singleton `OkHttpClient` (15s timeouts) |
+| `network` | `ConfigHttpDataSource` — `suspend fun fetchConfigJson(url)` |
+| `network` | `AssetHttpDataSource` — `suspend fun downloadBytes(url)` |
+| `constants` | `SpinWheelPrefsConstants` — SharedPreferences key constants |
 
-### :di
-Dependency injection configuration and modules.
+---
+
+### `:data` — Data Layer
+Pure JVM library. Repositories, cache, and preferences.
+
+| File | Purpose |
+|---|---|
+| `ConfigRepository` | Fetch remote config with TTL, cache, and offline fallback |
+| `AssetRepository` | Download and cache wheel image assets |
+| `normalizeDriveUrl()` | Converts Drive share links → direct-download URLs |
+| `SpinWheelCache` | Root cache directory — `spinwheel-cache/` |
+| `JsonCache` | Reads/writes `config.json` |
+| `AssetCache` | Reads/writes asset files keyed by SHA-256 hash of URL |
+| `SpinWheelPrefs` | `SharedPreferences` wrapper for fetch time + last spin index |
+
+---
+
+### `:domain` — Business Logic
+Pure JVM library.
+
+| File | Purpose |
+|---|---|
+| `SpinEngine` | `fun spin(segments, rotationConfig): SpinResult` — pure spin calculation |
+| `SpinResult` | `resultIndex`, `targetRotationDegrees`, `durationMs` |
+| `WheelRotationConfig` | `duration`, `minimumSpins`, `maximumSpins`, `spinEasing` |
+
+---
+
+### `:di` — Koin Module Definitions
+Pure JVM library. Android-safe Koin `single { }` definitions only.
+
+| Module | Provides |
+|---|---|
+| `NetworkModule` | `OkHttpClient`, `ConfigHttpDataSource`, `AssetHttpDataSource` |
+| `RepositoryModule` | `ConfigRepository`, `AssetRepository` |
+| `DomainModule` | `SpinEngine` |
+
+> `CacheModule` (needs `androidContext()`) lives in `:app`.
+
+---
 
 ## Architecture
 
-This project follows Clean Architecture principles with clear separation of concerns:
-
 ```
-┌─────────────────────────────────────┐
-│           Presentation              │
-│         (app, ui modules)           │
-└──────────────┬──────────────────────┘
-               │
-┌──────────────▼──────────────────────┐
-│            Domain                   │
-│      (domain module)                │
-│   - Use Cases                       │
-│   - Business Logic                  │
-└──────────────┬──────────────────────┘
-               │
-┌──────────────▼──────────────────────┐
-│             Data                    │
-│       (data module)                 │
-│   - Repositories                    │
-│   - Data Sources                    │
-└──────────────┬──────────────────────┘
-               │
-┌──────────────▼──────────────────────┐
-│             Core                    │
-│       (core module)                 │
-│   - Common Utilities                │
-│   - Base Classes                    │
-└─────────────────────────────────────┘
+app (demo)
+ └── SpinWheelDemoScreen
+       └── SpinWheel              ← SDK public composable
+             └── SpinWheelViewModel
+                   ├── ConfigRepository  →  core/network  →  OkHttp
+                   │       └── JsonCache, SpinWheelPrefs
+                   ├── AssetRepository   →  core/network  →  OkHttp
+                   │       └── AssetCache
+                   └── SpinEngine
 ```
 
-## Getting Started
+---
 
-1. Clone the repository
-2. Open the project in Android Studio
-3. Sync Gradle
-4. Run the `:app` module to see the sample implementation
+## Config JSON Schema
 
-## License
+Hosted at `CONFIG_URL` (Google Drive). Fetched on first launch, cached with TTL.
 
-[Add your license here]
+```json
+{
+  "data": [{
+    "network": {
+      "attributes": { "refreshInterval": 300, "cacheExpiration": 3600 },
+      "assets": { "host": "..." }
+    },
+    "wheel": {
+      "rotation": { "duration": 2000, "minimumSpins": 3, "maximumSpins": 5 },
+      "assets": { "bg": "bg.jpeg", "wheelFrame": "wheel-frame.png", "wheelSpin": "wheel-spin.png", "wheel": "wheel.png" }
+    }
+  }]
+}
+```
 
+> Asset URLs are resolved from `AppConstants` — the config host is a placeholder.
+
+---
+
+## SDK Integration
+
+```kotlin
+// 1. Initialize in Application class
+class MyApp : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        SpinWheelSdk.initialize(this)
+    }
+}
+
+// 2. Render the composable
+SpinWheel(
+    configUrl = "https://your-config-url",
+    onSpinEnd = { resultIndex ->
+        Log.d("Demo", "Result: $resultIndex")
+    }
+)
+```
+
+---
+
+## Dependencies
+
+| Library | Purpose |
+|---|---|
+| `com.squareup.okhttp3:okhttp` | HTTP networking |
+| `org.jetbrains.kotlinx:kotlinx-serialization-json` | JSON parsing |
+| `io.insert-koin:koin-android` | Dependency injection |
+| `io.insert-koin:koin-androidx-compose` | Koin `koinViewModel()` in Compose |
+| `androidx.lifecycle:lifecycle-viewmodel-ktx` | ViewModel + `viewModelScope` |
+| `androidx.compose.*` | UI framework |
