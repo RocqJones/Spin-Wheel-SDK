@@ -18,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.jonesmbindyo.spinwheel.ui.vm.SpinWheelViewModel
 import com.jonesmbindyo.spinwheel.ui.screens.SpinWheelView
 import com.jonesmbindyo.spinwheel.ui.theme.SpinWheelTheme
+import com.jonesmbindyo.spinwheel.vm.SpinWheelViewModel
 
 private const val CONFIG_URL = "https://your-config-endpoint.com/widget.json"
 
