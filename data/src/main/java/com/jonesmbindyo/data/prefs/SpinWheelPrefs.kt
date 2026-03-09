@@ -1,21 +1,16 @@
 package com.jonesmbindyo.data.prefs
 
+import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import com.jonesmbindyo.core.constants.SpinWheelPrefsConstants
-import java.io.File
-import java.util.Properties
 
 /**
- * Persistent key-value store for the Spin Wheel SDK.
- * Backed by a `spinwheel_prefs.properties` file inside [filesDir]. Every assignment writes through immediately.
+ * Persistent key-value store for the Spin Wheel SDK backed by Android [SharedPreferences].
+ * Accepts a [SharedPreferences] instance so the data module stays testable without Android context.
  *
- * @param filesDir The app's private files directory (i.e. `Context.filesDir`).
+ * Instantiate via: `SpinWheelPrefs(context.getSharedPreferences("spinwheel_prefs", Context.MODE_PRIVATE))`
  */
-class SpinWheelPrefs(filesDir: File) {
-
-    private val file = filesDir.resolve("spinwheel_prefs.properties")
-    private val props = Properties().also { p ->
-        if (file.exists()) file.inputStream().use { p.load(it) }
-    }
+class SpinWheelPrefs(private val prefs: SharedPreferences) {
 
     /**
      * Epoch-millisecond timestamp of the last successful remote config fetch.
@@ -23,22 +18,17 @@ class SpinWheelPrefs(filesDir: File) {
      * Defaults to `0`, guaranteeing a fetch on first run.
      */
     var lastConfigFetchTimeMs: Long
-        get() = props.getProperty(SpinWheelPrefsConstants.KEY_LAST_CONFIG_FETCH_TIME_MS, "0").toLong()
-        set(value) = persist(SpinWheelPrefsConstants.KEY_LAST_CONFIG_FETCH_TIME_MS, value.toString())
+        get() = prefs.getLong(SpinWheelPrefsConstants.KEY_LAST_CONFIG_FETCH_TIME_MS, 0L)
+        @SuppressLint("UseKtx")
+        set(value) = prefs.edit().putLong(SpinWheelPrefsConstants.KEY_LAST_CONFIG_FETCH_TIME_MS, value).apply()
 
     /** Index of the wheel segment from the most recent spin. Defaults to `-1` (no spin yet). */
     var lastSpinResultIndex: Int
-        get() = props.getProperty(SpinWheelPrefsConstants.KEY_LAST_SPIN_RESULT_INDEX, "-1").toInt()
-        set(value) = persist(SpinWheelPrefsConstants.KEY_LAST_SPIN_RESULT_INDEX, value.toString())
+        get() = prefs.getInt(SpinWheelPrefsConstants.KEY_LAST_SPIN_RESULT_INDEX, -1)
+        @SuppressLint("UseKtx")
+        set(value) = prefs.edit().putInt(SpinWheelPrefsConstants.KEY_LAST_SPIN_RESULT_INDEX, value).apply()
 
     /** Wipes all SDK preferences. */
-    fun clear() {
-        props.clear()
-        file.delete()
-    }
-
-    private fun persist(key: String, value: String) {
-        props.setProperty(key, value)
-        file.outputStream().use { props.store(it, null) }
-    }
+    @SuppressLint("UseKtx")
+    fun clear() = prefs.edit().clear().apply()
 }

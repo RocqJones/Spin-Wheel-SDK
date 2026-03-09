@@ -16,6 +16,7 @@ kotlin {
 }
 
 dependencies {
+    compileOnly(libs.android)
     implementation(project(":core"))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
