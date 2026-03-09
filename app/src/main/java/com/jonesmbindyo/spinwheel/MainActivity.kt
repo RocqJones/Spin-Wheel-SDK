@@ -20,9 +20,8 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jonesmbindyo.spinwheel.ui.screens.SpinWheelView
 import com.jonesmbindyo.spinwheel.ui.theme.SpinWheelTheme
+import com.jonesmbindyo.spinwheel.constants.CONFIG_URL
 import com.jonesmbindyo.spinwheel.vm.SpinWheelViewModel
-
-private const val CONFIG_URL = "https://your-config-endpoint.com/widget.json"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +42,9 @@ class MainActivity : ComponentActivity() {
                     when {
                         state.isLoadingConfig || state.isLoadingAssets -> {
                             Box(
-                                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding),
                                 contentAlignment = Alignment.Center,
                             ) { CircularProgressIndicator() }
                         }
@@ -60,24 +61,24 @@ class MainActivity : ComponentActivity() {
                                 ?.let { BitmapFactory.decodeFile(it) }
                                 ?.let { BitmapPainter(it.asImageBitmap()) }
 
-                            val bg    = filePainter(state.backgroundFile?.path)
+                            val bg = filePainter(state.backgroundFile?.path)
                             val wheel = filePainter(state.wheelFile?.path)
                             val frame = filePainter(state.frameFile?.path)
-                            val btn   = filePainter(state.spinButtonFile?.path)
+                            val btn = filePainter(state.spinButtonFile?.path)
 
-                            if (bg != null && wheel != null && frame != null && btn != null) {
-                                SpinWheelView(
-                                    background  = bg,
-                                    wheel       = wheel,
-                                    frame       = frame,
-                                    spinButton  = btn,
-                                    rotation    = state.rotationDegrees,
-                                    isSpinning  = state.isSpinning,
-                                    onSpinClick = vm::spin,
-                                    modifier    = Modifier
-                                        .fillMaxSize()
-                                        .padding(innerPadding),
-                                )
+                            when {
+                                bg != null && wheel != null && frame != null && btn != null -> {
+                                    SpinWheelView(
+                                        background = bg,
+                                        wheel = wheel,
+                                        frame = frame,
+                                        spinButton = btn,
+                                        rotation = state.rotationDegrees,
+                                        isSpinning = state.isSpinning,
+                                        onSpinClick = vm::spin,
+                                        modifier = Modifier.fillMaxSize().padding(innerPadding),
+                                    )
+                                }
                             }
                         }
                     }
