@@ -17,22 +17,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jonesmbindyo.spinwheel.constants.CONFIG_URL
+import com.jonesmbindyo.spinwheel_sdk.screens.SpinWheel
 
 private const val TAG = "SpinWheelDemo"
 
-// Demo screen — shows how a host app integrates the SpinWheel SDK composable.
 @Composable
 fun SpinWheelDemoScreen(modifier: Modifier = Modifier) {
     var lastResultIndex by remember { mutableIntStateOf(-1) }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        // SDK entry point — host apps only need this single composable.
         SpinWheel(
             configUrl = CONFIG_URL,
             modifier  = Modifier.fillMaxWidth(),
@@ -43,8 +40,8 @@ fun SpinWheelDemoScreen(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text  = if (lastResultIndex >= 0) "Last result: $lastResultIndex" else "Tap the wheel to spin",
-            style = MaterialTheme.typography.titleMedium,
+            text     = if (lastResultIndex >= 0) "Last result: $lastResultIndex" else "Tap the wheel to spin",
+            style    = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(top = 24.dp),
         )
     }

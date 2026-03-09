@@ -40,15 +40,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":di"))
-    implementation(project(":core"))
-    implementation(project(":data"))
-    implementation(project(":domain"))
+    implementation(project(":spinwheel-sdk"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.koin.androidx.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
